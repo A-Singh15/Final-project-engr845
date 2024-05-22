@@ -10,7 +10,7 @@ module test;
     integer signed x, y;
 
     // Instantiate the DUT (top module)
-    top dut(
+    top dut (
         .clock(intf0.clock),
         .reset(intf0.reset),
         .start(intf0.start),
@@ -53,10 +53,10 @@ module test;
         end
 
         // Initialize memories
-        foreach (dut.memR_u.Rmem[i]) begin
+        foreach (Rmem[i]) begin
             dut.memR_u.Rmem[i] = Rmem[i];
         end
-        foreach (dut.memS_u.Smem[i]) begin
+        foreach (Smem[i]) begin
             dut.memS_u.Smem[i] = Smem[i];
         end
 
