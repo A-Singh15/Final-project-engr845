@@ -1,4 +1,3 @@
-// generator.sv
 class Generator;
     virtual intf vif;
 
