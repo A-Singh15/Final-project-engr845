@@ -1,4 +1,3 @@
-// environment.sv
 class Environment;
     Generator gen;
     Driver drv;
@@ -16,7 +15,7 @@ class Environment;
 
     task run();
         fork
-            gen.gen_task(); // Call the updated task name
+            gen.generate();
             drv.drive();
             mon.monitor();
         join_none
