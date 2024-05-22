@@ -1,4 +1,3 @@
-// generator.sv
 class Generator;
     virtual intf vif;
 
@@ -6,7 +5,7 @@ class Generator;
         this.vif = vif;
     endfunction
 
-    task gen_task();
+    task generate();
         Transaction tr = new();
         forever begin
             if (!$urandom_range(0, 5)) begin
