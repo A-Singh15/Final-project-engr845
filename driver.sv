@@ -1,4 +1,3 @@
-// driver.sv
 class Driver;
     virtual intf vif;
 
