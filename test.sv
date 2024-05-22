@@ -4,7 +4,7 @@ module test;
 
     // Internal signals for testbench
     reg [7:0] Rmem[0:255]; 
-    reg [7:0] Smem[0:1023];
+    reg [7:8] Smem[0:1023];
     integer Expected_motionX, Expected_motionY;
     integer i;
     integer signed x, y;
@@ -99,7 +99,7 @@ module test;
         if (x == Expected_motionX && y == Expected_motionY) begin
             $display("DUT motion outputs match expected motions: DUT motionX = %d DUT motionY = %d Expected_motionX = %d Expected_motionY = %d", x, y, Expected_motionX, Expected_motionY);
         end else begin
-            $display("DUT motion outputs DO NOT match expected motions: DUT motionX = %d DUT motionY = %d Expected_motionX = %d Expected_motionY = %d", x, y, Expected_motionX, Expected_motionY);
+            $display("DUT motion outputs DO NOT match expected motions: DUT motionX = %d DUT motionY = %d Expected_motionX = %d Expected motionY = %d", x, y, Expected_motionX, Expected_motionY);
         end
 
         $display("All tests completed\n\n");
