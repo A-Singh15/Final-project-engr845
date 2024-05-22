@@ -1,6 +1,22 @@
 module test;
     intf intf0();
-    Environment env;
+    environment env_inst(
+        .clock(intf0.clock),
+        .reset(intf0.reset),
+        .start(intf0.start),
+        .video_frame_data(intf0.video_frame_data),
+        .control_signals(intf0.control_signals),
+        .motionX(intf0.motionX),
+        .motionY(intf0.motionY),
+        .BestDist(intf0.BestDist),
+        .completed(intf0.completed),
+        .AddressR(intf0.AddressR),
+        .AddressS1(intf0.AddressS1),
+        .AddressS2(intf0.AddressS2),
+        .R(intf0.R),
+        .S1(intf0.S1),
+        .S2(intf0.S2)
+    );
 
     // Internal signals for testbench
     reg [7:0] Rmem[0:255]; 
@@ -10,14 +26,14 @@ module test;
     integer signed x, y;
 
     initial begin
-        env = new(intf0);
-        env.run();
+        env_inst.env = new(env_inst.dut);
+        env_inst.env.run();
 
         // Initialize memories and other signals
         $vcdpluson;
         // First setup up to monitor all inputs and outputs
         $monitor("time=%5d ns, clock=%b, start=%b, BestDist=%b, motionX=%d, motionY=%d, count=%d", 
-                 $time, intf0.clock, intf0.start, intf0.BestDist, intf0.motionX, intf0.motionY, env.dut.ctl_u.count[12:0]);
+                 $time, intf0.clock, intf0.start, intf0.BestDist, intf0.motionX, intf0.motionY, env_inst.env.dut.ctl_u.count[12:0]);
 
         // Randomize Smem
         foreach (Smem[i]) begin
@@ -34,16 +50,16 @@ module test;
         end
 
         // Initialize memories
-        foreach (env.dut.memR_u.Rmem[i]) begin
-            env.dut.memR_u.Rmem[i] = Rmem[i];
+        foreach (env_inst.env.dut.memR_u.Rmem[i]) begin
+            env_inst.env.dut.memR_u.Rmem[i] = Rmem[i];
         end
-        foreach (env.dut.memS_u.Smem[i]) begin
-            env.dut.memS_u.Smem[i] = Smem[i];
+        foreach (env_inst.env.dut.memS_u.Smem[i]) begin
+            env_inst.env.dut.memS_u.Smem[i] = Smem[i];
         end
 
         // Initialize all registers
-        // $readmemh("ref.txt", env.dut.memR_u.Rmem);
-        // $readmemh("search.txt", env.dut.memS_u.Smem);
+        // $readmemh("ref.txt", env_inst.env.dut.memR_u.Rmem);
+        // $readmemh("search.txt", env_inst.env.dut.memS_u.Smem);
         intf0.clock = 1'b0;
         intf0.start = 1'b0;
 
@@ -51,7 +67,7 @@ module test;
         intf0.start = 1'b1;
 
         for (i = 0; i < 4112; i = i + 1) begin
-            if (env.dut.comp_u.newBest == 1'b1) begin
+            if (env_inst.env.dut.comp_u.newBest == 1'b1) begin
                 $display("New Result Coming!");
             end
             @(posedge intf0.clock); #10;
