@@ -1,4 +1,3 @@
-// environment.sv
 class Environment;
     Generator gen;
     Driver drv;
