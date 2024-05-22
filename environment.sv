@@ -4,6 +4,7 @@ class Environment;
     Monitor mon;
     Scoreboard sb;
     virtual intf vif;
+    top dut; // Add the DUT instance
 
     function new(virtual intf vif);
         this.vif = vif;
@@ -11,6 +12,7 @@ class Environment;
         drv = new(vif);
         mon = new(vif);
         sb = new();
+        dut = new();
     endfunction
 
     task run();
