@@ -1,6 +1,16 @@
 module test;
     intf intf0();
-    environment env_inst(
+    Environment env;
+
+    // Internal signals for testbench
+    reg [7:0] Rmem[0:255]; 
+    reg [7:0] Smem[0:1023];
+    integer Expected_motionX, Expected_motionY;
+    integer i;
+    integer signed x, y;
+
+    // Instantiate the DUT (top module)
+    top dut(
         .clock(intf0.clock),
         .reset(intf0.reset),
         .start(intf0.start),
@@ -18,22 +28,15 @@ module test;
         .S2(intf0.S2)
     );
 
-    // Internal signals for testbench
-    reg [7:0] Rmem[0:255]; 
-    reg [7:0] Smem[0:1023];
-    integer Expected_motionX, Expected_motionY;
-    integer i;
-    integer signed x, y;
-
     initial begin
-        env_inst.env = new(env_inst.dut);
-        env_inst.env.run();
+        env = new(intf0);
+        env.run();
 
         // Initialize memories and other signals
         $vcdpluson;
         // First setup up to monitor all inputs and outputs
         $monitor("time=%5d ns, clock=%b, start=%b, BestDist=%b, motionX=%d, motionY=%d, count=%d", 
-                 $time, intf0.clock, intf0.start, intf0.BestDist, intf0.motionX, intf0.motionY, env_inst.env.dut.ctl_u.count[12:0]);
+                 $time, intf0.clock, intf0.start, intf0.BestDist, intf0.motionX, intf0.motionY, dut.ctl_u.count[12:0]);
 
         // Randomize Smem
         foreach (Smem[i]) begin
@@ -50,16 +53,16 @@ module test;
         end
 
         // Initialize memories
-        foreach (env_inst.env.dut.memR_u.Rmem[i]) begin
-            env_inst.env.dut.memR_u.Rmem[i] = Rmem[i];
+        foreach (dut.memR_u.Rmem[i]) begin
+            dut.memR_u.Rmem[i] = Rmem[i];
         end
-        foreach (env_inst.env.dut.memS_u.Smem[i]) begin
-            env_inst.env.dut.memS_u.Smem[i] = Smem[i];
+        foreach (dut.memS_u.Smem[i]) begin
+            dut.memS_u.Smem[i] = Smem[i];
         end
 
         // Initialize all registers
-        // $readmemh("ref.txt", env_inst.env.dut.memR_u.Rmem);
-        // $readmemh("search.txt", env_inst.env.dut.memS_u.Smem);
+        // $readmemh("ref.txt", dut.memR_u.Rmem);
+        // $readmemh("search.txt", dut.memS_u.Smem);
         intf0.clock = 1'b0;
         intf0.start = 1'b0;
 
@@ -67,7 +70,7 @@ module test;
         intf0.start = 1'b1;
 
         for (i = 0; i < 4112; i = i + 1) begin
-            if (env_inst.env.dut.comp_u.newBest == 1'b1) begin
+            if (dut.comp_u.newBest == 1'b1) begin
                 $display("New Result Coming!");
             end
             @(posedge intf0.clock); #10;
@@ -115,7 +118,7 @@ module test;
         if (x == Expected_motionX && y == Expected_motionY) begin
             $display("DUT motion outputs match expected motions: DUT motionX = %d DUT motionY = %d Expected_motionX = %d Expected_motionY = %d", x, y, Expected_motionX, Expected_motionY);
         end else begin
-            $display("DUT motion outputs DO NOT match expected motions: DUT motionX = %d DUT motionY = %d Expected_motionX = %d Expected motionY = %d", x, y, Expected_motionX, Expected_motionY);
+            $display("DUT motion outputs DO NOT match expected motions: DUT motionX = %d DUT motionY = %d Expected_motionX = %d Expected_motionY = %d", x, y, Expected_motionX, Expected_motionY);
         end
 
         $display("All tests completed\n\n");
