@@ -26,7 +26,7 @@ run:
 
 # Compile files
 compile:
-	vcs -l vcs.log -sverilog -debug_all -full64 $(INTERFACE) $(TRANSACTION) $(GENERATOR) $(DRIVER) $(MONITOR) $(SCOREBOARD) $(ENVIRONMENT) $(TEST) $(RTL)
+	vcs -l vcs.log -sverilog -debug_acc+all -debug_region+cell+encrypt -full64 $(INTERFACE) $(TRANSACTION) $(GENERATOR) $(DRIVER) $(MONITOR) $(SCOREBOARD) $(ENVIRONMENT) $(TEST) $(RTL)
 
 # DVE for post-processing
 dve:
