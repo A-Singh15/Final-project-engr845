@@ -15,7 +15,7 @@ class Environment;
 
     task run();
         fork
-            gen.generate();
+            gen.gen_task(); // Corrected task name
             drv.drive();
             mon.monitor();
         join_none
