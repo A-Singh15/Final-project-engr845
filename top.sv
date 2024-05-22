@@ -10,17 +10,14 @@ module top(
     output logic completed,
     output logic [7:0] AddressR,
     output logic [9:0] AddressS1,
-    output logic [9:0] AddressS2,
-    input logic [7:0] R,
-    input logic [7:0] S1,
-    input logic [7:0] S2
+    output logic [9:0] AddressS2
 );
 
+    wire [7:0] R_wire, S1_wire, S2_wire;
     wire [15:0] S1S2mux_wire, newDist_wire, PEready_wire;
     wire CompStart_wire;
     wire [3:0] VectorX_wire, VectorY_wire;
     wire [127:0] Accumulate_wire;
-    wire [7:0] Rpipe_wire;
 
     // Instantiate the control module
     control ctl_u(
@@ -41,9 +38,9 @@ module top(
     // Instantiate the PEtotal module
     PEtotal pe_u(
         .clock(clock),
-        .R(R),
-        .S1(S1),
-        .S2(S2),
+        .R(R_wire),
+        .S1(S1_wire),
+        .S2(S2_wire),
         .S1S2mux(S1S2mux_wire),
         .newDist(newDist_wire),
         .Accumulate(Accumulate_wire)
@@ -66,15 +63,15 @@ module top(
     ROM_R memR_u (
         .clock(clock),
         .AddressR(AddressR),
-        .R(R)
+        .R(R_wire)
     );
 
     ROM_S memS_u (
         .clock(clock),
         .AddressS1(AddressS1),
         .AddressS2(AddressS2),
-        .S1(S1),
-        .S2(S2)
+        .S1(S1_wire),
+        .S2(S2_wire)
     );
 
 endmodule
@@ -85,7 +82,7 @@ module PE (
     input [7:0] R, S1, S2,
     input S1S2mux, newDist,
     output [7:0] Accumulate,
-    output [7:0] Rpipe
+    output reg [7:0] Rpipe
 );
     reg [7:0] AccumulateReg, AccumulateIn, difference, difference_temp;
     reg Carry;
@@ -180,7 +177,7 @@ module Comparator (
     output reg [7:0] BestDist,
     output reg [3:0] motionX, motionY
 );
-    reg [7:0] newDist;
+    reg [7:8] newDist;
     reg newBest;
     integer n;
 
@@ -256,10 +253,10 @@ endmodule
 module ROM_R (
     input clock,
     input [7:0] AddressR,
-    output [7:0] R
+    output logic [7:0] R
 );
-    reg [7:0] Rreg;
-    reg [7:0] Rmem[0:255];
+    logic [7:0] Rreg;
+    logic [7:0] Rmem[0:255];
 
     always @(*) Rreg = Rmem[AddressR];
     assign R = Rreg;
@@ -269,10 +266,10 @@ endmodule
 module ROM_S (
     input clock,
     input [9:0] AddressS1, AddressS2,
-    output [7:0] S1, S2
+    output logic [7:0] S1, S2
 );
-    reg [7:0] S1reg, S2reg;
-    reg [7:0] Smem[0:1023];
+    logic [7:0] S1reg, S2reg;
+    logic [7:0] Smem[0:1023];
 
     always @(*) begin
         S1reg = Smem[AddressS1];
