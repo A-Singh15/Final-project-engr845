@@ -1,4 +1,3 @@
-// monitor.sv
 class Monitor;
     virtual intf vif;
 
