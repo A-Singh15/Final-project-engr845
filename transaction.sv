@@ -1,3 +1,4 @@
+// transaction.sv
 class Transaction;
     rand bit [7:0] video_frame_data;
     rand bit [7:0] control_signals;
