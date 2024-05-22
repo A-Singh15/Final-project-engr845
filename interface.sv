@@ -1,4 +1,4 @@
-interface intf;
+interface intf();
     logic clock;
     logic reset;
     logic start;
