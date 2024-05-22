@@ -4,7 +4,7 @@ module test;
 
     // Internal signals for testbench
     reg [7:0] Rmem[0:255]; 
-    reg [7:8] Smem[0:1023];
+    reg [7:0] Smem[0:1023];
     integer Expected_motionX, Expected_motionY;
     integer i;
     integer signed x, y;
