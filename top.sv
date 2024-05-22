@@ -13,25 +13,25 @@ module top(
     output logic [9:0] AddressS2,
     input logic [7:0] R,
     input logic [7:0] S1,
-    input logic [7:8] S2
+    input logic [7:0] S2
 );
 
-    wire [15:0] S1S2mux, newDist, PEready;
-    wire CompStart;
-    wire [3:0] VectorX, VectorY;
-    wire [127:0] Accumulate;
-    wire [7:0] Rpipe;
+    wire [15:0] S1S2mux_wire, newDist_wire, PEready_wire;
+    wire CompStart_wire;
+    wire [3:0] VectorX_wire, VectorY_wire;
+    wire [127:0] Accumulate_wire;
+    wire [7:0] Rpipe_wire;
 
     // Instantiate the control module
     control ctl_u(
         .clock(clock),
         .start(start),
-        .S1S2mux(S1S2mux),
-        .newDist(newDist),
-        .CompStart(CompStart),
-        .PEready(PEready),
-        .VectorX(VectorX),
-        .VectorY(VectorY),
+        .S1S2mux(S1S2mux_wire),
+        .newDist(newDist_wire),
+        .CompStart(CompStart_wire),
+        .PEready(PEready_wire),
+        .VectorX(VectorX_wire),
+        .VectorY(VectorY_wire),
         .AddressR(AddressR),
         .AddressS1(AddressS1),
         .AddressS2(AddressS2),
@@ -44,19 +44,19 @@ module top(
         .R(R),
         .S1(S1),
         .S2(S2),
-        .S1S2mux(S1S2mux),
-        .newDist(newDist),
-        .Accumulate(Accumulate)
+        .S1S2mux(S1S2mux_wire),
+        .newDist(newDist_wire),
+        .Accumulate(Accumulate_wire)
     );
 
     // Instantiate the Comparator module
     Comparator comp_u(
         .clock(clock),
-        .CompStart(CompStart),
-        .PEout(Accumulate),
-        .PEready(PEready),
-        .vectorX(VectorX),
-        .vectorY(VectorY),
+        .CompStart(CompStart_wire),
+        .PEout(Accumulate_wire),
+        .PEready(PEready_wire),
+        .vectorX(VectorX_wire),
+        .vectorY(VectorY_wire),
         .BestDist(BestDist),
         .motionX(motionX),
         .motionY(motionY)
@@ -72,20 +72,21 @@ module PE (
     output [7:0] Accumulate,
     output [7:0] Rpipe
 );
-    reg [7:0] Accumulate, AccumulateIn, difference, difference_temp;
+    reg [7:0] AccumulateReg, AccumulateIn, difference, difference_temp;
     reg Carry;
 
     always @(posedge clock) Rpipe <= R;
-    always @(posedge clock) Accumulate <= AccumulateIn;
+    always @(posedge clock) AccumulateReg <= AccumulateIn;
 
-    always @(R or S1 or S2 or S1S2mux or newDist or Accumulate) begin
+    always @(R or S1 or S2 or S1S2mux or newDist or AccumulateReg) begin
         difference = R - (S1S2mux ? S1 : S2);
         difference_temp = -difference;
         if (difference < 0) difference = difference_temp;
-        {Carry, AccumulateIn} = Accumulate + difference;
+        {Carry, AccumulateIn} = AccumulateReg + difference;
         if (Carry == 1) AccumulateIn = 8'hFF; // saturated
         if (newDist == 1) AccumulateIn = difference;
     end
+    assign Accumulate = AccumulateReg;
 endmodule
 
 /* Module For The Last Processing Element (PEend) */
@@ -95,19 +96,20 @@ module PEend (
     input S1S2mux, newDist,
     output [7:0] Accumulate
 );
-    reg [7:0] Accumulate, AccumulateIn, difference, difference_temp;
+    reg [7:8] AccumulateReg, AccumulateIn, difference, difference_temp;
     reg Carry;
 
-    always @(posedge clock) Accumulate <= AccumulateIn;
+    always @(posedge clock) AccumulateReg <= AccumulateIn;
 
-    always @(R or S1 or S2 or S1S2mux or newDist or Accumulate) begin
+    always @(R or S1 or S2 or S1S2mux or newDist or AccumulateReg) begin
         difference = R - (S1S2mux ? S1 : S2);
         difference_temp = -difference;
         if (difference < 0) difference = difference_temp;
-        {Carry, AccumulateIn} = Accumulate + difference;
+        {Carry, AccumulateIn} = AccumulateReg + difference;
         if (Carry == 1) AccumulateIn = 8'hFF; // saturated
         if (newDist == 1) AccumulateIn = difference;
     end
+    assign Accumulate = AccumulateReg;
 endmodule
 
 /* Module For Control Unit */
@@ -202,7 +204,7 @@ module Comparator (
             end
         end
 
-        if ((|PEready == 0) || (CompStart == 0)) newBest = 0; // no PE is ready
+        if ((|PEready == 0) || (CompStart == 0)) newBest = 0;
         else if (newDist < BestDist) newBest = 1;
         else newBest = 0;
     end
@@ -241,10 +243,11 @@ module ROM_R (
     input [7:0] AddressR,
     output [7:0] R
 );
-    reg [7:0] R;
+    reg [7:0] Rreg;
     reg [7:0] Rmem[0:255];
 
-    always @(*) R = Rmem[AddressR];
+    always @(*) Rreg = Rmem[AddressR];
+    assign R = Rreg;
 endmodule
 
 /* Module For Search Block (Memory) */
@@ -253,11 +256,13 @@ module ROM_S (
     input [9:0] AddressS1, AddressS2,
     output [7:0] S1, S2
 );
-    reg [7:0] S1, S2;
+    reg [7:0] S1reg, S2reg;
     reg [7:0] Smem[0:1023];
 
     always @(*) begin
-        S1 = Smem[AddressS1];
-        S2 = Smem[AddressS2];
+        S1reg = Smem[AddressS1];
+        S2reg = Smem[AddressS2];
     end
+    assign S1 = S1reg;
+    assign S2 = S2reg;
 endmodule
