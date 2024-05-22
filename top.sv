@@ -177,7 +177,7 @@ module Comparator (
     output reg [7:0] BestDist,
     output reg [3:0] motionX, motionY
 );
-    reg [7:8] newDist;
+    reg [7:0] newDist;
     reg newBest;
     integer n;
 
