@@ -1,5 +1,3 @@
-// top.sv
-
 module top(
     input logic clock,
     input logic reset,
@@ -15,7 +13,7 @@ module top(
     output logic [9:0] AddressS2,
     input logic [7:0] R,
     input logic [7:0] S1,
-    input logic [7:0] S2
+    input logic [7:8] S2
 );
 
     wire [15:0] S1S2mux, newDist, PEready;
@@ -192,7 +190,7 @@ module Comparator (
                     4'b0110: newDist = PEout[55:48]; 
                     4'b0111: newDist = PEout[63:56]; 
                     4'b1000: newDist = PEout[71:64]; 
-                    4'b1009: newDist = PEout[79:72]; 
+                    4'b1001: newDist = PEout[79:72]; 
                     4'b1010: newDist = PEout[87:80]; 
                     4'b1011: newDist = PEout[95:88]; 
                     4'b1100: newDist = PEout[103:96]; 
