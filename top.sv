@@ -10,7 +10,10 @@ module top(
     output logic completed,
     output logic [7:0] AddressR,
     output logic [9:0] AddressS1,
-    output logic [9:0] AddressS2
+    output logic [9:0] AddressS2,
+    output logic [7:0] R,   // Exposing R to the top module output
+    output logic [7:0] S1,  // Exposing S1 to the top module output
+    output logic [7:0] S2   // Exposing S2 to the top module output
 );
 
     wire [7:0] R_wire, S1_wire, S2_wire;
@@ -73,6 +76,11 @@ module top(
         .S1(S1_wire),
         .S2(S2_wire)
     );
+
+    // Connect internal wires to the module outputs
+    assign R = R_wire;
+    assign S1 = S1_wire;
+    assign S2 = S2_wire;
 
 endmodule
 
